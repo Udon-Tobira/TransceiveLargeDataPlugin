@@ -29,6 +29,8 @@ public:
 
 	//~ Begin AActor Interface
 	virtual void OnConstruction(const FTransform& Transform) override;
+	virtual void GetLifetimeReplicatedProps(
+	    TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	//~ End AActor Interface
 
 private:
@@ -44,5 +46,9 @@ private:
 	ABPOnlineBeaconMulticastClient* GetBroadcastTargetBeaconMulticastClient();
 
 private:
-	TObjectPtr<UTransceiveLargeDataComponent> TransceiveLargeDataComponent;
+	UPROPERTY(ReplicatedUsing = OnRep_TransceiveLargeDataComponent)
+	UTransceiveLargeDataComponent* TransceiveLargeDataComponent;
+
+	UFUNCTION()
+	void OnRep_TransceiveLargeDataComponent();
 };

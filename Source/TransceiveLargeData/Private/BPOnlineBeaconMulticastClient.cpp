@@ -5,6 +5,7 @@
 #include "BPOnlineBeaconMulticastHostObject.h"
 #include "BeaconMulticastGameModeBase.h"
 #include "LogBPOnlineBeaconMulticastClient.h"
+#include "Net/UnrealNetwork.h"
 
 void ABPOnlineBeaconMulticastClient::Multicast(const TArray<uint8>& Data) {
 	// get broadcast target beacon multicast client
@@ -35,27 +36,40 @@ void ABPOnlineBeaconMulticastClient::Multicast(const TArray<uint8>& Data) {
 	}
 }
 
-ABPOnlineBeaconMulticastClient::ABPOnlineBeaconMulticastClient()
-    : TransceiveLargeDataComponent(
-          CreateDefaultSubobject<UTransceiveLargeDataComponent>(
-              TEXT("TransceiveLargeDataComponent"))) {
+ABPOnlineBeaconMulticastClient::ABPOnlineBeaconMulticastClient() {
 	// create default scene root
 	RootComponent =
 	    CreateDefaultSubobject<USceneComponent>(TEXT("DefaultSceneRoot"));
+
+	// replicate
+	bReplicates = true;
 }
 
 void ABPOnlineBeaconMulticastClient::OnConstruction(
     const FTransform& Transform) {
-	// bind on received data on
-	TransceiveLargeDataComponent->EventReceivedDataDelegate.AddDynamic(
-	    this, &ABPOnlineBeaconMulticastClient::OnReceivedData);
+	Super::OnConstruction(Transform);
 
 	// if I'm on server
 	if (ENetMode::NM_Client != GetNetMode()) {
-		// bind on received data on server
+		// create TransceiveLargeDataComponent
+		TransceiveLargeDataComponent =
+		    NewObject<UTransceiveLargeDataComponent>(this);
+		TransceiveLargeDataComponent->RegisterComponent();
+
+		// bind OnReceivedDataOnServer
 		TransceiveLargeDataComponent->EventReceivedDataDelegate.AddDynamic(
 		    this, &ABPOnlineBeaconMulticastClient::OnReceivedDataOnServer);
+
+		// call function that TransceiveLargeDataComponent is created
+		OnRep_TransceiveLargeDataComponent();
 	}
+}
+
+void ABPOnlineBeaconMulticastClient::GetLifetimeReplicatedProps(
+    TArray<FLifetimeProperty>& OutLifetimeProps) const {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ABPOnlineBeaconMulticastClient, TransceiveLargeDataComponent);
 }
 
 void ABPOnlineBeaconMulticastClient::OnReceivedData(const TArray<uint8>& Data) {
@@ -162,4 +176,10 @@ ABPOnlineBeaconMulticastClient*
 	const auto* const ConstThis = this;
 	return const_cast<ABPOnlineBeaconMulticastClient*>(
 	    ConstThis->GetBroadcastTargetBeaconMulticastClient());
+}
+
+void ABPOnlineBeaconMulticastClient::OnRep_TransceiveLargeDataComponent() {
+	// bind on received data on
+	TransceiveLargeDataComponent->EventReceivedDataDelegate.AddDynamic(
+	    this, &ABPOnlineBeaconMulticastClient::OnReceivedData);
 }
