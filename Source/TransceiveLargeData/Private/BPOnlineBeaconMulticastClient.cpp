@@ -81,7 +81,7 @@ void ABPOnlineBeaconMulticastClient::OnReceivedDataOnServer(
 		// If it's not the client who sent the data
 		if (BeaconMulticastClient != this) {
 			// send data to its owning client
-			TransceiveLargeDataComponent->SendData(
+			BeaconMulticastClient->TransceiveLargeDataComponent->SendData(
 			    Data, ETransceiveLargeDataDirection::Client);
 		}
 	}
