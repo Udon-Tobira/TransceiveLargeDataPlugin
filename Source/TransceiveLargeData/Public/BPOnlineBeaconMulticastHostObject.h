@@ -28,6 +28,11 @@ public:
 	//~=============================================================================
 	// Accessors for beacon host object and beacon host.
 
+	// The class of OnlineBeaconMulticastClient.
+	UPROPERTY(EditAnywhere, NoClear, BlueprintReadOnly, Category = Classes)
+	TSubclassOf<ABPOnlineBeaconMulticastClient> OnlineBeaconMulticastClientClass =
+	    ABPOnlineBeaconMulticastClient::StaticClass();
+
 	UFUNCTION(BlueprintCallable)
 	TArray<ABPOnlineBeaconMulticastClient*> GetClientActors() const;
 
@@ -47,9 +52,7 @@ public:
 	    OnBeaconMulticastClientSpawnedDelegate;
 
 public:
-	ABPOnlineBeaconMulticastHostObject(
-	    const FObjectInitializer& ObjectInitializer);
-	virtual void PostActorCreated() override;
+	virtual void OnConstruction(const FTransform& Transform) override;
 
 private:
 	TObjectPtr<ABPOnlineBeaconMulticastClient> ServerOnlyClientActor;

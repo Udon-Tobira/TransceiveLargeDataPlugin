@@ -28,17 +28,14 @@ ABPOnlineBeaconMulticastClient*
 	return SpawnedBeaconMulticastClient;
 }
 
-ABPOnlineBeaconMulticastHostObject::ABPOnlineBeaconMulticastHostObject(
-    const FObjectInitializer& ObjectInitializer)
-    : Super(ObjectInitializer) {
+void ABPOnlineBeaconMulticastHostObject::OnConstruction(
+    const FTransform& Transform) {
 	// set ClientBeaconActorClass
-	ClientBeaconActorClass = ABPOnlineBeaconMulticastClient::StaticClass();
+	ClientBeaconActorClass = OnlineBeaconMulticastClientClass;
 
 	// set BeaconTypeName
 	BeaconTypeName = ClientBeaconActorClass->GetName();
-}
 
-void ABPOnlineBeaconMulticastHostObject::PostActorCreated() {
 	// get World
 	const auto& World = GetWorld();
 
@@ -46,8 +43,8 @@ void ABPOnlineBeaconMulticastHostObject::PostActorCreated() {
 	check(nullptr != World);
 
 	// spawn client actor only used for server
-	ServerOnlyClientActor =
-	    GetWorld()->SpawnActor<ABPOnlineBeaconMulticastClient>();
+	ServerOnlyClientActor = World->SpawnActor<ABPOnlineBeaconMulticastClient>(
+	    OnlineBeaconMulticastClientClass);
 
 	// set owner
 	ServerOnlyClientActor->SetBeaconOwner(this);

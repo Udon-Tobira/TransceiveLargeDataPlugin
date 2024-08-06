@@ -8,21 +8,33 @@
 
 #include "BPOnlineBeaconMulticastClient.generated.h"
 
+// delegate for blueprint called when a data is received
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(
+    FOnOnlineBeaconMulticastClientReceivedDataDynamicDelegate,
+    const TArray<uint8>&, Data, const FName&, ChannelName);
+
 /**
  *
  */
-UCLASS(BlueprintType, Blueprintable, transient, config = Engine, notplaceable)
+UCLASS(BlueprintType, Blueprintable, transient, config = Engine, notplaceable,
+       Abstract)
 class TRANSCEIVELARGEDATA_API ABPOnlineBeaconMulticastClient
     : public ABPOnlineBeaconClient {
 	GENERATED_BODY()
 
 public:
 	UFUNCTION(BlueprintCallable)
-	void Multicast(const TArray<uint8>& Data);
+	void Multicast(const TArray<uint8>& Data, const FName& ChannelName);
+
+public:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere,
+	          meta = (TitleProperty = "Channel Name"), Category = "Network")
+	TArray<FName> ChannelNames;
 
 public:
 	UPROPERTY(BlueprintAssignable)
-	FEventReceivedDataDelegate EventReceivedDataDelegate;
+	FOnOnlineBeaconMulticastClientReceivedDataDynamicDelegate
+	    OnReceivedDataDynamicDelegate;
 
 public:
 	ABPOnlineBeaconMulticastClient();
@@ -35,9 +47,10 @@ public:
 
 private:
 	UFUNCTION()
-	void OnReceivedData(const TArray<uint8>& Data);
+	void OnReceivedData(const TArray<uint8>& Data, const FName& ChannelName);
 	UFUNCTION()
-	void OnReceivedDataOnServer(const TArray<uint8>& Data);
+	void OnReceivedDataOnServer(const TArray<uint8>& Data,
+	                            const FName&         ChannelName);
 	TArray<ABPOnlineBeaconMulticastClient*> GetBeaconMulticastClients() const;
 	class ABPOnlineBeaconMulticastHostObject*
 	    GetBeaconMulticastHostObject() const;
@@ -46,9 +59,9 @@ private:
 	ABPOnlineBeaconMulticastClient* GetBroadcastTargetBeaconMulticastClient();
 
 private:
-	UPROPERTY(ReplicatedUsing = OnRep_TransceiveLargeDataComponent)
-	UTransceiveLargeDataComponent* TransceiveLargeDataComponent;
+	UPROPERTY(ReplicatedUsing = OnRep_TransceiveLargeDataComponents)
+	TArray<UTransceiveLargeDataComponent*> TransceiveLargeDataComponents;
 
 	UFUNCTION()
-	void OnRep_TransceiveLargeDataComponent();
+	void OnRep_TransceiveLargeDataComponents();
 };

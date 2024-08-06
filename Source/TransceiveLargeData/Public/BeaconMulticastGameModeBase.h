@@ -24,6 +24,12 @@ public:
 	//~=============================================================================
 	// Accessors for beacon host object and beacon host.
 
+	// The class of OnlineBeaconHostObject spawned only in server.
+	UPROPERTY(EditAnywhere, NoClear, BlueprintReadOnly, Category = Classes)
+	TSubclassOf<ABPOnlineBeaconMulticastHostObject>
+	    OnlineBeaconMulticastHostObjectClass =
+	        ABPOnlineBeaconMulticastHostObject::StaticClass();
+
 	// OnlineBeaconMulticastHostObject controls
 	// OnlineBeaconHost and OnlineBeaconClient.
 	UPROPERTY(Transient)

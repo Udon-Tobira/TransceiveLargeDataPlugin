@@ -26,7 +26,7 @@ void ABeaconMulticastGameModeBase::PreInitializeComponents() {
 	// spawn OnlineBeaconMulticastHostObject
 	OnlineBeaconMulticastHostObject =
 	    World->SpawnActor<ABPOnlineBeaconMulticastHostObject>(
-	        SpawnParam_Transient);
+	        OnlineBeaconMulticastHostObjectClass, SpawnParam_Transient);
 
 	// check OnlineBeaconMulticastHostObject
 	check(OnlineBeaconMulticastHostObject != nullptr);
