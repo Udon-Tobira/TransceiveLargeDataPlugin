@@ -32,7 +32,7 @@ public:
 	TArray<FName> ChannelNames;
 
 public:
-	UPROPERTY(BlueprintAssignable)
+	UPROPERTY(BlueprintAssignable, meta = (DisplayName = "On Received Data"))
 	FOnOnlineBeaconMulticastClientReceivedDataDynamicDelegate
 	    OnReceivedDataDynamicDelegate;
 

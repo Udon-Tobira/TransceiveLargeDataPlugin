@@ -21,8 +21,7 @@ ABPOnlineBeaconMulticastClient*
 	        Super::SpawnBeaconActor(ClientConnection));
 
 	// broad cast that client is spawned
-	OnBeaconMulticastClientSpawnedDelegate.Broadcast(
-	    SpawnedBeaconMulticastClient);
+	OnBeaconSpawnedDynamicDelegate.Broadcast(SpawnedBeaconMulticastClient);
 
 	// return spawned client
 	return SpawnedBeaconMulticastClient;

@@ -10,8 +10,8 @@
 
 // delegate called after a client is spawned
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
-    FOnBeaconMulticastClientSpawnedDelegate, ABPOnlineBeaconMulticastClient*,
-    SpawnedClient);
+    FOnBeaconMulticastClientSpawnedDynamicDelegate,
+    ABPOnlineBeaconMulticastClient*, SpawnedClient);
 
 /**
  * ABPOnlineBeaconMulticastHostObject class available from blueprint.
@@ -47,9 +47,8 @@ public:
 	    SpawnBeaconActor(UNetConnection* ClientConnection) override;
 
 public:
-	UPROPERTY(BlueprintAssignable)
-	FOnBeaconMulticastClientSpawnedDelegate
-	    OnBeaconMulticastClientSpawnedDelegate;
+	UPROPERTY(BlueprintAssignable, meta = (DisplayName = "On Beacon Spawned"))
+	FOnBeaconMulticastClientSpawnedDynamicDelegate OnBeaconSpawnedDynamicDelegate;
 
 public:
 	virtual void OnConstruction(const FTransform& Transform) override;
