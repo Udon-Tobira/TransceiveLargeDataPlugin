@@ -115,6 +115,19 @@ void ABPOnlineBeaconMulticastClient::OnReceivedData(const TArray<uint8>& Data,
 	    Data, ChannelName);
 }
 
+void ABPOnlineBeaconMulticastClient::OnSentAChunk(const TArray<uint8>& Data,
+                                                  const FName& ChannelName,
+                                                  int32 DataLengthAlreadySent,
+                                                  int32 TotalDataLengthToSend) {
+	// get broadcast target beacon multicast client
+	const auto& BroadcastTargetBeaconMulticastClient =
+	    GetBroadcastTargetBeaconMulticastClient();
+
+	// broadcast to the broadcast target beacon multicast client
+	BroadcastTargetBeaconMulticastClient->OnSentAChunkDynamicDelegate.Broadcast(
+	    Data, ChannelName, DataLengthAlreadySent, TotalDataLengthToSend);
+}
+
 void ABPOnlineBeaconMulticastClient::OnReceivedDataOnServer(
     const TArray<uint8>& Data, const FName& ChannelName) {
 	// check I'm on server
@@ -240,6 +253,15 @@ void ABPOnlineBeaconMulticastClient::OnRep_TransceiveLargeDataComponents() {
 		    [this, ChannelName](const auto& Data) {
 			    // call OnlineBeaconMulticastClient's OnReceivedData
 			    OnReceivedData(Data, ChannelName);
+		    });
+
+		// if TransceiveLargeDataComponent sent a chunk
+		TransceiveLargeDataComponent->OnSentAChunkDelegate.AddLambda(
+		    [this, ChannelName](const auto& Data, const auto& DataLengthAlreadySent,
+		                        const auto& TotalDataLengthToSend) {
+			    // call OnlineBeaconMulticastCliet's OnSentAChunk
+			    OnSentAChunk(Data, ChannelName, DataLengthAlreadySent,
+			                 TotalDataLengthToSend);
 		    });
 	}
 }

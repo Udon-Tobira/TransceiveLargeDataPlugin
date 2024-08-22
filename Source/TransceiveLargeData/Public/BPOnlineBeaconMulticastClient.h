@@ -13,6 +13,12 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(
     FOnOnlineBeaconMulticastClientReceivedDataDynamicDelegate,
     const TArray<uint8>&, Data, const FName&, ChannelName);
 
+// delegate for blueprint called when a chunk is sent
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(
+    FOnOnlineBeaconMulticastClientSentAChunkDynamicDelegate,
+    const TArray<uint8>&, Data, const FName&, ChannelName, int32,
+    DataLengthAlreadySent, int32, TotalDataLengthToSend);
+
 /**
  *
  */
@@ -35,6 +41,9 @@ public:
 	UPROPERTY(BlueprintAssignable, meta = (DisplayName = "On Received Data"))
 	FOnOnlineBeaconMulticastClientReceivedDataDynamicDelegate
 	    OnReceivedDataDynamicDelegate;
+	UPROPERTY(BlueprintAssignable, meta = (DisplayName = "On Sent A Chunk"))
+	FOnOnlineBeaconMulticastClientSentAChunkDynamicDelegate
+	    OnSentAChunkDynamicDelegate;
 
 public:
 	ABPOnlineBeaconMulticastClient();
@@ -48,6 +57,9 @@ public:
 private:
 	UFUNCTION()
 	void OnReceivedData(const TArray<uint8>& Data, const FName& ChannelName);
+	UFUNCTION()
+	void OnSentAChunk(const TArray<uint8>& Data, const FName& ChannelName,
+	                  int32 DataLengthAlreadySent, int32 TotalDataLengthToSend);
 	UFUNCTION()
 	void OnReceivedDataOnServer(const TArray<uint8>& Data,
 	                            const FName&         ChannelName);
