@@ -9,14 +9,16 @@
 #include "BPOnlineBeaconMulticastClient.generated.h"
 
 // delegate for blueprint called when a data is received
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(
     FOnOnlineBeaconMulticastClientReceivedDataDynamicDelegate,
-    const TArray<uint8>&, Data, const FName&, ChannelName);
+    const TArray<uint8>&, Data, ABPOnlineBeaconMulticastClient*,
+    BeaconMulticastClient, const FName&, ChannelName);
 
 // delegate for blueprint called when a chunk is sent
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FiveParams(
     FOnOnlineBeaconMulticastClientSentAChunkDynamicDelegate,
-    const TArray<uint8>&, Data, const FName&, ChannelName, int32,
+    const TArray<uint8>&, Data, ABPOnlineBeaconMulticastClient*,
+    BeaconMulticastClient, const FName&, ChannelName, int32,
     DataLengthAlreadySent, int32, TotalDataLengthToSend);
 
 /**
@@ -58,8 +60,10 @@ private:
 	UFUNCTION()
 	void OnReceivedData(const TArray<uint8>& Data, const FName& ChannelName);
 	UFUNCTION()
-	void OnSentAChunk(const TArray<uint8>& Data, const FName& ChannelName,
-	                  int32 DataLengthAlreadySent, int32 TotalDataLengthToSend);
+	void OnSentAChunk(const TArray<uint8>&            Data,
+	                  ABPOnlineBeaconMulticastClient* SourceBeaconMulticastClient,
+	                  const FName& ChannelName, int32 DataLengthAlreadySent,
+	                  int32 TotalDataLengthToSend);
 	UFUNCTION()
 	void OnReceivedDataOnServer(const TArray<uint8>& Data,
 	                            const FName&         ChannelName);

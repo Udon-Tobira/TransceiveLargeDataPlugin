@@ -15,7 +15,7 @@ void ABPOnlineBeaconMulticastClient::Multicast(const TArray<uint8>& Data,
 
 	// broadcast to the broadcast target beacon multicast client
 	BroadcastTargetBeaconMulticastClient->OnReceivedDataDynamicDelegate.Broadcast(
-	    Data, ChannelName);
+	    Data, this, ChannelName);
 
 	// get index of Channel
 	const auto& ChannelIndex = ChannelNames.Find(ChannelName);
@@ -112,20 +112,22 @@ void ABPOnlineBeaconMulticastClient::OnReceivedData(const TArray<uint8>& Data,
 
 	// broadcast to the broadcast target beacon multicast client
 	BroadcastTargetBeaconMulticastClient->OnReceivedDataDynamicDelegate.Broadcast(
-	    Data, ChannelName);
+	    Data, this, ChannelName);
 }
 
-void ABPOnlineBeaconMulticastClient::OnSentAChunk(const TArray<uint8>& Data,
-                                                  const FName& ChannelName,
-                                                  int32 DataLengthAlreadySent,
-                                                  int32 TotalDataLengthToSend) {
+void ABPOnlineBeaconMulticastClient::OnSentAChunk(
+    const TArray<uint8>&            Data,
+    ABPOnlineBeaconMulticastClient* SourceBeaconMulticastClient,
+    const FName& ChannelName, int32 DataLengthAlreadySent,
+    int32 TotalDataLengthToSend) {
 	// get broadcast target beacon multicast client
 	const auto& BroadcastTargetBeaconMulticastClient =
 	    GetBroadcastTargetBeaconMulticastClient();
 
 	// broadcast to the broadcast target beacon multicast client
 	BroadcastTargetBeaconMulticastClient->OnSentAChunkDynamicDelegate.Broadcast(
-	    Data, ChannelName, DataLengthAlreadySent, TotalDataLengthToSend);
+	    Data, SourceBeaconMulticastClient, ChannelName, DataLengthAlreadySent,
+	    TotalDataLengthToSend);
 }
 
 void ABPOnlineBeaconMulticastClient::OnReceivedDataOnServer(
@@ -260,7 +262,7 @@ void ABPOnlineBeaconMulticastClient::OnRep_TransceiveLargeDataComponents() {
 		    [this, ChannelName](const auto& Data, const auto& DataLengthAlreadySent,
 		                        const auto& TotalDataLengthToSend) {
 			    // call OnlineBeaconMulticastCliet's OnSentAChunk
-			    OnSentAChunk(Data, ChannelName, DataLengthAlreadySent,
+			    OnSentAChunk(Data, this, ChannelName, DataLengthAlreadySent,
 			                 TotalDataLengthToSend);
 		    });
 	}
