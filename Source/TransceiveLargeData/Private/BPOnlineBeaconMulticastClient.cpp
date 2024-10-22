@@ -283,6 +283,13 @@ void ABPOnlineBeaconMulticastClient::OnRep_TransceiveLargeDataComponents() {
 			    OnBeginSendData(Data, this, ChannelName, TransceiveDirection);
 		    });
 
+		// if TransceiveLargeDataComponent ended to send data
+		TransceiveLargeDataComponent->OnEndSendDataDelegate.AddLambda(
+		    [this, ChannelName]() {
+			    // call OnlineBeaconMulticastClient's OnEndSendData
+			    OnEndSendData(this, ChannelName);
+		    });
+
 		// if TransceiveLargeDataComponent sent a chunk
 		TransceiveLargeDataComponent->OnSentAChunkDelegate.AddLambda(
 		    [this, ChannelName](const auto& Data, const auto& DataLengthAlreadySent,
