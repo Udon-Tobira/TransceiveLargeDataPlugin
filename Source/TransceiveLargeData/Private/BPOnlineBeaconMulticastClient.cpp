@@ -104,6 +104,32 @@ void ABPOnlineBeaconMulticastClient::GetLifetimeReplicatedProps(
 	DOREPLIFETIME(ABPOnlineBeaconMulticastClient, TransceiveLargeDataComponents);
 }
 
+void ABPOnlineBeaconMulticastClient::OnBeginSendData(
+    const TArray<uint8>&            Data,
+    ABPOnlineBeaconMulticastClient* SourceBeaconMulticastClient,
+    const FName&                    ChannelName,
+    ETransceiveLargeDataDirection   TransceiveDirection) {
+	// get broadcast target beacon multicast client
+	const auto& BroadcastTargetBeaconMulticastClient =
+	    GetBroadcastTargetBeaconMulticastClient();
+
+	// broadcast to the broadcast target beacon multicast client
+	BroadcastTargetBeaconMulticastClient->OnBeginSendDataDynamicDelegate
+	    .Broadcast(Data, SourceBeaconMulticastClient, ChannelName);
+}
+
+void ABPOnlineBeaconMulticastClient::OnEndSendData(
+    ABPOnlineBeaconMulticastClient* SourceBeaconMulticastClient,
+    const FName&                    ChannelName) {
+	// get broadcast target beacon multicast client
+	const auto& BroadcastTargetBeaconMulticastClient =
+	    GetBroadcastTargetBeaconMulticastClient();
+
+	// broadcast to the broadcast target beacon multicast client
+	BroadcastTargetBeaconMulticastClient->OnEndSendDataDynamicDelegate.Broadcast(
+	    SourceBeaconMulticastClient, ChannelName);
+}
+
 void ABPOnlineBeaconMulticastClient::OnReceivedData(const TArray<uint8>& Data,
                                                     const FName& ChannelName) {
 	// get broadcast target beacon multicast client
@@ -250,11 +276,11 @@ void ABPOnlineBeaconMulticastClient::OnRep_TransceiveLargeDataComponents() {
 		// get ChannelName
 		const auto& ChannelName = ChannelNames[i];
 
-		// if TransceiveLargeDataComponent received data
-		TransceiveLargeDataComponent->OnReceivedDataDelegate.AddLambda(
-		    [this, ChannelName](const auto& Data) {
-			    // call OnlineBeaconMulticastClient's OnReceivedData
-			    OnReceivedData(Data, ChannelName);
+		// if TransceiveLargeDataComponent began to send data
+		TransceiveLargeDataComponent->OnBeginSendDataDelegate.AddLambda(
+		    [this, ChannelName](const auto& Data, auto TransceiveDirection) {
+			    // call OnlineBeaconMulticastClient's OnBeginSendData
+			    OnBeginSendData(Data, this, ChannelName, TransceiveDirection);
 		    });
 
 		// if TransceiveLargeDataComponent sent a chunk
@@ -264,6 +290,13 @@ void ABPOnlineBeaconMulticastClient::OnRep_TransceiveLargeDataComponents() {
 			    // call OnlineBeaconMulticastCliet's OnSentAChunk
 			    OnSentAChunk(Data, this, ChannelName, DataLengthAlreadySent,
 			                 TotalDataLengthToSend);
+		    });
+
+		// if TransceiveLargeDataComponent received data
+		TransceiveLargeDataComponent->OnReceivedDataDelegate.AddLambda(
+		    [this, ChannelName](const auto& Data) {
+			    // call OnlineBeaconMulticastClient's OnReceivedData
+			    OnReceivedData(Data, ChannelName);
 		    });
 	}
 }
